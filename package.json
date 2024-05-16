@@ -7,7 +7,10 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "build:page": "nuxt build --preset github_pages",
+    "start:page": "npx serve .output/public",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@nuxt/ui": "^2.16.0",
@@ -19,5 +22,8 @@
     "vite-plugin-pug": "^0.3.2",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
   }
 }
