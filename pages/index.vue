@@ -1,88 +1,83 @@
 <template lang="pug">
 div.page-container(:style="{ background: '#efe2c3' }")
-  div.header
-    span Set Builder
+  div.header(class="flex justify-center items-center p-4")
+    span.text-xl.font-bold Set Builder
     UButton(
       :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
       color="gray"
       variant="ghost"
       aria-label="Theme"
       @click="isDark = !isDark")
-    div(class="flex items-center" :style="{ width: '100%', justifyContent: 'center'}").my-2
-      UButton(@click="exportToPng('exportArea')" class="btn-icon mx-1") Export All
-      UButton(@click="exportToPng('spellArea')" class="btn-icon mx-1") Export Spells
-      UButton(@click="exportToPng('palArea')" class="btn-icon mx-1") Export Pals
-      UButton(@click="exportToPng('relicArea')" class="btn-icon mx-1") Export Relics
-    div(ref="exportArea" :style="{maxWidth: '600px', margin: '0 auto', background: '#e3d3af'}" )
-      UCard(:style="{ maxWidth: '600px', margin: '0 auto', background: '#e3d3af' }" :ui="{ body: { padding: '0px', background: 'yellow' } }" ref="exportArea")
-        template(#header)
-          div.flex
-            input(
-              type="text"
-              v-model="title"
-              class="editable-title"
-            )
+  div(class="grid grid-cols-2 md:grid-cols-4 items-center justify-center my-4 md:space-y-0 md:space-x-2")
+    UButton(@click="exportToPng('exportArea')" class="btn-icon mx-1") Export All
+    UButton(@click="exportToPng('spellArea')" class="btn-icon mx-1") Export Spells
+    UButton(@click="exportToPng('palArea')" class="btn-icon mx-1") Export Pals
+    UButton(@click="exportToPng('relicArea')" class="btn-icon mx-1") Export Relics
+  div(ref="exportArea" class="md:max-w-3xl mx-auto" :style="{ background: '#e3d3af' }")
+    UCard(:style="{ background: '#e3d3af' }" :ui="{ body: { padding: '0px' } }" ref="exportArea")
+      template(#header)
+        div.flex.flex-col.items-center
+          input(
+            type="text"
+            v-model="title"
+            class="editable-title text-center mb-2 p-1 border-b-2 border-gray-400"
+          )
+      template(#default)
+        Placeholder.pa-2
+          div(ref="spellArea" class="p-4 rounded-md my-4" :style="{ background: '#e3d3af' }")
+            h2.section-title.text-lg.font-bold.mb-2 Spells
+            div.card-row.flex.flex-wrap.gap-4
+              div.card(v-for="spell in selectedSpells" :key="spell.id" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2")
+                img.card-image(:src="Object.keys(spell.spell).length > 0 ? spell.spell.image : '/empty.png' " :alt="spell.spell.name" @click="openSpellModal(spell.id)" class="w-full h-32 object-cover rounded-md shadow-md")
+                span.level.text-center.block.mt-2 {{ spell.spell.name || 'Select' }}
+        UDivider
+        Placeholder.p-2
+          div(ref="palArea" class="p-4 rounded-md my-4" :style="{ background: '#e3d3af' }")
+            h2.section-title.text-lg.font-bold.mb-2 Pals
+            div.card-row.flex.flex-wrap.gap-4
+              div.card(v-for="pal in selectedPals" :key="pal.id" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2")
+                img.card-image(:src="Object.keys(pal.pal).length ? pal.pal.image : '/empty.png'" :alt="pal.pal.name" @click="openPalModal(pal.id)" class="w-full h-32 object-cover rounded-md shadow-md")
+                span.level.text-center.block.mt-2 {{ pal.pal.name || 'Select' }}
+        UDivider
+        Placeholder.p-2
+          div(ref="relicArea" class="p-4 rounded-md my-4" :style="{ background: '#e3d3af' }")
+            h2.section-title.text-lg.font-bold.mb-2 Relics
+            div.card-row.flex.flex-wrap.gap-4
+              div.relic-card(v-for="relic in selectedRelics" :key="relic.id" class="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2" @click="openRelicModal(relic.id, relic.type)" :style="{ background: '#e3d3af' }")
+                img(:src="relic.background" class="absolute inset-0 w-full h-full object-cover rounded-md shadow-md")
 
-        template(#default)
-          Placeholder.pa-2
-            div(ref="spellArea" :style="{maxWidth: '600px', margin: '0 auto', background: '#e3d3af'}")
-              h2.section-title Spells
-              div.card-row
-                div.card(v-for="spell in selectedSpells" :key="spell.id" )
-                  img.card-image(:src="Object.keys(spell.spell).length > 0 ? spell.spell.image : '/empty.png' " :alt="spell.spell.name" @click="openSpellModal(spell.id)")
-                  //div.card-info
-                    span.level {{ spell.spell.name || 'Select' }}
-          UDivider
-          Placeholder.p-2
-            div(ref="palArea" :style="{maxWidth: '600px', margin: '0 auto', background: '#e3d3af'}")
-              h2.section-title Pals
-              div.card-row
-                div.card(v-for="pal in selectedPals" :key="pal.id")
-                  img.card-image(:src="Object.keys(pal.pal).length ? pal.pal.image : '/empty.png'" :alt="pal.pal.name" @click="openPalModal(pal.id)")
-                  //div.card-info
-                    span.level {{ pal.pal.name || 'Select' }}
-          UDivider
-          Placeholder.p-2
-            div(ref="relicArea" :style="{maxWidth: '600px', margin: '0 auto', background: '#e3d3af'}")
-              h2.section-title Relics
-              div.card-row
-                  div.relic-card(v-for="relic in selectedRelics" :key="relic.id" class="relative w-full h-full" @click="openRelicModal(relic.id, relic.type)")
-                    img(:src="relic.background" class="absolute inset-0 w-full h-full object-cover")
-
-                    img(
-                      v-if="Object.keys(relic.relic).length"
-                      @click="openRelicModal(relic.id, relic.type)"
-                      :src="relic.relic.image"
-                      :alt="relic.name"
-                      class="absolute inset-0 w-full h-full object-cover p-3"
-                    )
-                    //div.card-info
-                      div.level {{ relic.relic.name || 'Select' }}
+                img(
+                  v-if="Object.keys(relic.relic).length"
+                  @click="openRelicModal(relic.id, relic.type)"
+                  :src="relic.relic.image"
+                  :alt="relic.name"
+                  class="absolute inset-0 w-full h-full object-cover p-3 rounded-md shadow-md"
+                )
+                div.level.text-center.block.mt-2 {{ relic.relic.name || 'Select' }}
 
   UModal(v-model="isSpellModalOpen" :overlay="false")
     template(#default)
       div(:style="{ background: '#e3d3af', borderColor: '#a39476' }").border-8
-        h2.section-title Spell Modal
-        div.card-row
-          div.card(v-for="spell in spells" :key="spell.id" :class="spell.type" @click="addSpell(spell.id)")
-              img.card-image(:src="spell.image" :alt="spell.name")
-
+        h2.section-title.text-lg.font-bold.mb-2 Spell Modal
+        div.card-row.flex.flex-wrap.gap-4
+          div.card(v-for="spell in spells" :key="spell.id" :class="spell.type" @click="addSpell(spell.id)" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2")
+              img.card-image(:src="spell.image" :alt="spell.name" class="w-full h-32 object-cover rounded-md shadow-md")
 
   UModal(v-model="isPalModalOpen" :overlay="false")
     template(#default)
       div(:style="{ background: '#e3d3af', borderColor: '#a39476' }").border-8
-        h2.section-title Pal Modal
-        div.card-row
-          div.card(v-for="pal in pals" :key="pal.id" :class="pal.type" @click="addPal(pal.id)")
-              img.card-image(:src="pal.image" :alt="pal.name")
+        h2.section-title.text-lg.font-bold.mb-2 Pal Modal
+        div.card-row.flex.flex-wrap.gap-4
+          div.card(v-for="pal in pals" :key="pal.id" :class="pal.type" @click="addPal(pal.id)" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2")
+              img.card-image(:src="pal.image" :alt="pal.name" class="w-full h-32 object-cover rounded-md shadow-md")
 
   UModal(v-model="isRelicModalOpen" :overlay="false")
     template(#default)
         div(:style="{ background: '#e3d3af', borderColor: '#a39476' }").border-8
-          h2.section-title Relic Modal
-          div.card-row
-            div.card(v-for="relic in relicsList" :key="relic.id" :class="relic.type" :style="{ backgroundColor: relicsCardColor[relic.color] }" @click="addRelic(relic.id)")
-                img.card-image(:src="relic.image" :alt="relic.name")
+          h2.section-title.text-lg.font-bold.mb-2 Relic Modal
+          div.card-row.flex.flex-wrap.gap-4
+            div.card(v-for="relic in relicsList" :key="relic.id" :class="relic.type" :style="{ backgroundColor: relicsCardColor[relic.color] }" @click="addRelic(relic.id)" class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2")
+                img.card-image(:src="relic.image" :alt="relic.name" class="w-full h-32 object-cover rounded-md shadow-md")
 </template>
 
 <script setup lang="ts">
@@ -119,6 +114,8 @@ type SelectedRelic = { id: string; type: number; color: string; relic: Relic | {
 const { spells } = useSpells()
 const { pals } = usePals()
 const { relics } = useRelics()
+
+const toasts = useToast()
 
 const colorMode = useColorMode()
 const isDark = computed({
@@ -326,6 +323,7 @@ const exportToPng = async (areaName: 'exportArea' | 'spellArea' | 'palArea' | 'r
     }
   } catch (error) {
     console.error('Export failed:', error)
+    toasts.add({ title: 'Export failed', id: 'export-failed', color: 'red' })
   } finally {
     await showFooter()
   }
@@ -350,7 +348,7 @@ const addSpell = (id: string) => {
 
   if (isSpellAlreadySelected) {
     console.log('Spell already selected')
-    alert('Spell already selected')
+    toasts.add({ title: 'Spell already selected', id: 'spell-already-selected', color: 'red' })
     return
   }
 
@@ -496,7 +494,8 @@ const removeRelic = (id: string) => {
 .page-container {
   padding: 20px;
   font-family: Arial, sans-serif;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .header {
@@ -521,6 +520,7 @@ const removeRelic = (id: string) => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  background-color: #e3d3af;
 }
 
 .card {
